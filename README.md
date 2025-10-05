@@ -1,2 +1,2 @@
 # public
-Just playing with simulations.
+Just playing with FEM.
