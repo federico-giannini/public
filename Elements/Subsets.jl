@@ -31,7 +31,3 @@ function Base.iterate(iterable::Subsets, indices::Vector{Int})
     end
     return nothing
 end
-
-for subset in Subsets([0, 2, 4, 6], 4)
-    println(subset)
-end
