@@ -1,0 +1,447 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[top=2cm,bottom=2cm,left=2cm,right=2cm]{geometry}
+\usepackage{mathpazo,fancyhdr}
+\usepackage{amssymb,amsmath,amsthm,amsfonts,mathtools}
+\usepackage{graphicx,float}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{array,booktabs,multirow}
+\usepackage{comment}
+\usepackage{biblatex}
+\usepackage{tikz}
+\usepackage{soul}
+
+\addbibresource{bibliography.bib}
+
+\DeclareMathOperator{\re}{Re}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\dv}{div}
+\DeclareMathOperator{\curl}{curl}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\orient}{or}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{notation}{Notation}
+\newtheorem{example}{Example}
+\newtheorem{hypothesis}{Hypothesis}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\begin{document}
+	\begin{titlepage}
+		\begin{center}
+			\LARGE
+			\textbf{Rayleigh-Bénard convection: numerical study near the trivial equilibrium with local center manifold} \\
+			\vspace{5mm}
+			\large
+			Federico Giannini \\
+			\vspace{5mm}
+			2024-2025 \\
+			\vspace{5mm}
+			\textit{Università degli Studi di Padova} \\
+			\vspace{1mm}
+			\textit{Mathematical Engineering} \\
+			\vspace{10mm}
+			\begin{abstract}
+				The main objective of this report is to study the dynamics of Rayleigh-Bénard convection near the trivial equilibrium and a critical value of the Rayleigh number. First, we introduce the tools of local center manifold theory in the general setting of Banach spaces. We then apply these tools to our problem, performing a FEM numerical computation of a non-trivial stable equilibrium. We work in a 2D unit square, but our method could be extended to arbitrary dimensions and domains with appropriate modifications.
+			\end{abstract}
+			\vspace{10mm}
+			\tableofcontents
+		\end{center}
+	\end{titlepage}
+	\section{Introduction}
+	Studying the Navier-Stokes equations coupled to the heat equation, both analytically and numerically, is a challenging problem. In this report, we present a FEM numerical computation of an approximate stable equilibrium of the Boussinesq equations, which are themselves an approximation of the general problem. The computation is based on the existence of a local center manifold near the trivial equilibrium at a critical value of the Rayleigh number: the manifold is Taylor-expanded, producing a 1-dimensional ODE with a non-trivial stable equilibrium.
+	\section{Local center manifold theory}
+	\label{local center manifold}
+	In this chapter we will use the results of Section 2.2 \textit{Local Center Manifold} of \cite{haragus} (page 30). \\ \\
+	Let $Z \hookrightarrow Y \hookrightarrow X$ be Banach spaces, $U \subset Z$ a neighborhood of $0$, $L \in \mathcal{L}(Z, X)$, and $R \in C^k(U, Y)$ with $k \geq 2$ and
+	\[
+	R(0) = 0 \qquad DR(0) = 0 .
+	\]
+	\begin{definition}
+		With $I \subset \mathbb{R}$ an interval, we call $u \in C^0(I, Z) \cap C^1(I, X)$ a \textit{solution} if it solves the differential equation
+		\[
+		\frac{d}{dt} u = Lu + R(u) .
+		\]
+	\end{definition}
+	$L$ is the linear part of a non-linear operator. We need some hypotheses to state the local center manifold (LCM) theorem.
+	\begin{hypothesis}
+		\label{center-spectrum-hp}
+		Given the decomposition of the spectrum of $L$
+		\[
+		\sigma = \sigma_+ \cup \sigma_0 \cup \sigma_- ,
+		\]
+		we assume that
+		\begin{itemize}
+			\item $\sigma_+$ and $\sigma_-$ have no limit points on the imaginary axis, i.e. there exists $\gamma > 0$ such that
+			\[
+			\re \sigma_+ > \gamma \qquad \re \sigma_- < -\gamma ;
+			\]
+			\item $\sigma_0$ is a finite set and each of its elements has finite algebraic multiplicity.
+		\end{itemize}
+	\end{hypothesis}
+	\begin{definition}
+		\label{projection}
+		Given the central spectrum $\sigma_0$, we define the projection operator
+		\[
+		P = \frac{1}{2\pi i} \int_\Gamma (\lambda I - L)^{-1} d\lambda ,
+		\]
+		where $\Gamma$ is a positive oriented Jordan curve surrounding $\sigma_0$ and such that $\left|\re \Gamma\right| < \gamma$.
+	\end{definition}
+	It can be proved that
+	\[
+	P^2 = P \qquad PL = LP .
+	\]
+	Hence the space $Z_0 = \im P$, which is called \textit{center space} and can be proved to be finite-dimensional, is invariant under the action of $L$. This means that we can restrict $L$ to $Z_0$ and define $L_0 \in \mathcal{L}(Z_0)$. The same can be done for the space $X_h = \ker P$, defining $L_h \in \mathcal{L}(Z_h, X_h)$.
+	\begin{hypothesis}
+		Technical hypothesis, see \cite{haragus}.
+	\end{hypothesis}
+	\begin{theorem}
+		If the two hypotheses hold, then there exists a map $\Psi \in C^k(Z_0, Z_h)$ with
+		\[
+		\Psi(0) = 0 \qquad D\Psi(0) = 0
+		\]
+		and a neighborhood $V \subset Z$ of $0$ such that the manifold
+		\[
+		M_0 = \left\{u_0 + \Psi(u_0) \mid u_0 \in Z_0\right\} \subset Z
+		\]
+		has the following properties:
+		\begin{itemize}
+			\item $M_0$ is locally invariant, i.e., if $u$ is a solution with $u_0 \in M_0 \cap V$ and $u_t \in V$ for all $t \in [0, T]$, then $u_t \in M_0$ for all $t \in [0, T]$;
+			\item If $u$ is a solution with $u_t \in V$ for all $t \in \mathbb{R}$, then $u_0 \in M_0$.
+		\end{itemize}
+	\end{theorem}
+	\section{Boussinesq equations}
+	\subsection{From strong to weak formulation}
+	The object of our study will be the Boussinesq equations, which are stated in the strong form as
+	\[
+	\begin{dcases}
+		\frac{d}{dt} u + (u \cdot \nabla) u = - \nabla p + \mathcal{P} (\theta e_z + \Delta u) \\
+		\dv u = 0 \\
+		\frac{d}{dt} \theta + u \cdot \nabla \theta = \Delta \theta + \mathcal{R} u \cdot e_z
+	\end{dcases} ,
+	\]
+	for $u \in C^1([0,T]; C^2(\Omega)^2)$, $p \in C([0,T]; C^1(\Omega))$ and $\theta \in C^1([0,T]; C^2(\Omega))$, where $\Omega = [0, 1]^2$. $\mathcal{P}$ is called the Prandtl number and $\mathcal{R}$ the Rayleigh number. Calling
+	\[
+	\Gamma = \partial \Omega \qquad \Gamma_D = [0, 1] \times \{0, 1\} \qquad \Gamma_N = \{0, 1\} \times [0, 1] ,
+	\]
+	we complement these equations with initial and boundary conditions
+	\[
+		u(0) = u_0 \qquad \theta(0) = \theta_0 \\
+	\]
+	\[
+		u|_\Gamma = 0 \qquad \theta|_{\Gamma_D} = 0 \qquad \nabla \theta|_{\Gamma_N} = 0 ,
+	\]
+	with $u_0 \in C^2(\Omega)^2$, $\theta_0 \in C^2(\Omega)$. The first step is to state these equations in a weak form, searching solutions in larger spaces. This extension can be done as
+	\[
+	\begin{dcases}
+		u(0) = u_0 \\
+		\theta(0) = \theta_0 \\
+		\frac{d}{dt} u + (u \cdot \nabla) u = \mathcal{P} (\theta e_z + \Delta u) \\
+		\frac{d}{dt} \theta + u \cdot \nabla \theta = \Delta \theta + \mathcal{R} u \cdot e_z
+	\end{dcases} ,
+	\]
+	for
+	\begin{itemize}
+		\item $u \in \mathcal{V}$, the space of $v \in L^2([0, T]; V)$ such that $\frac{d}{dt}{v} \in L^2([0, T]; V')$, where $V$ is the space of $H^1_0(\Omega)^2$-functions with zero divergence;
+		\item $\theta \in \mathcal{Q}$, the space of $q \in L^2([0,T]; Q)$ such that $\frac{d}{dt}{q} \in L^2([0,T]; Q')$, where $Q = H^1_{\Gamma_D}(\Omega)$.
+	\end{itemize}
+	The equations are written considering the natural inclusions
+	\[
+	V \hookrightarrow L^2(\Omega)^2 \hookrightarrow V' \qquad Q \hookrightarrow L^2(\Omega) \hookrightarrow Q' .
+	\]
+	Note that the Laplacian is an operator $V \to V^*$ in the first equation and $Q \to Q'$ in the second one. With the setting of Section \ref{local center manifold}, the problem is
+	\[
+	\frac{d}{dt} w = Lw + R(w) ,
+	\]
+	where
+	\[
+	w =
+	\begin{pmatrix}
+		u \\
+		\theta
+	\end{pmatrix}
+	\qquad
+	Lw =
+	\begin{pmatrix}
+		\mathcal{P} (\theta e_z + \Delta u) \\
+		\Delta \theta + \mathcal{R} u \cdot e_z
+	\end{pmatrix}
+	\qquad
+	R(w) =
+	-
+	\begin{pmatrix}
+		(u \cdot \nabla) u \\
+		u \cdot \nabla \theta
+	\end{pmatrix}
+	.
+	\]
+	The triple of Banach spaces is
+	\[
+	Z = V \oplus Q \hookrightarrow Y = L^2(\Omega)^2 \oplus L^2(\Omega) \hookrightarrow X = V' \oplus Q' ,
+	\]
+	where $Z$ has norm
+	\[
+		\|w\|_Z = \|u\|_V + \|\theta\|_Q ,
+	\]
+	$Y$ is a Hilbert space with inner product
+	\[
+	(w_1, w_2)_Y = (u_1, u_2)_{L^2(\Omega)^2} + \frac{\mathcal{P}}{\mathcal{R}} (\theta_1, \theta_2)_{L^2(\Omega)} ,
+	\]
+	and $X \simeq Z^*$ inherits the norm of the dual. We assume that a solution to this problem exists and that it belongs to $C^0([0, T], Z) \cap C^1([0, T], X)$.
+	\begin{comment}
+		\begin{proposition}
+			$L$ is symmetric.
+			\begin{proof}
+				For every $w_1, w_2 \in Z$,
+				\[
+				\begin{split}
+					\langle Lw_1, w_2 \rangle_{X \times Z} &= \langle\mathcal{P}(\theta_1 e_z + \Delta v_1), v_2\rangle_{V^* \times V} + \frac{\mathcal{P}}{\mathcal{R}} \langle\Delta \theta_1 + \mathcal{R} v_1 \cdot e_z, \theta_2\rangle_{H^{-1}(\Omega) \times H^1_0(\Omega)} \\
+					&= \mathcal{P} \int_\Omega (v_2 \cdot e_z) \theta_1 - \mathcal{P} \int_\Omega \nabla v_1 \cdot \nabla v_2 - \frac{\mathcal{P}}{\mathcal{R}} \int_\Omega \nabla \theta_1 \cdot \nabla \theta_2 + \mathcal{P} \int_\Omega (v_1 \cdot e_z) \theta_2 \\
+					&= \langle Lw_2, w_1 \rangle_{X \times Z} ,
+				\end{split}
+				\]
+				i.e. $L$ is symmetric.
+			\end{proof}
+		\end{proposition}
+	\end{comment}
+	Now, we can prove that $L$ satisfies hypothesis \ref{center-spectrum-hp} and the other technical hypothesis: for an idea of the proof, see Section 5.1.3 \textit{Bénard-Rayleigh Convection Problem} of \cite{haragus} (page 249). We thus assume that LCM theorem holds.
+	\subsection{Center spectrum of $L$}
+	The LCM is non-empty only if there is at least a member of the center spectrum of $L$. From the properties of $L$, each element of its spectrum is associated to an eigenspace, and the center space $Z_0$ is just the one spanned by the center eigenvectors. Moreover, since $L$ is symmetric with respect to $Y$ inner product, its eigenvalues are all real and the only center eigenvalue could be 0. In order to find if the center spectrum is non-empty, we have to study the equation
+	\[
+	Lw =
+	\begin{pmatrix}
+		\mathcal{P} (\theta e_z + \Delta u) \\
+		\Delta \theta + \mathcal{R} u \cdot e_z
+	\end{pmatrix}
+	= 0 ,
+	\]
+	which is equivalent to
+	\[
+	\begin{dcases}
+		\theta e_z + \Delta u = 0 \\
+		\Delta \theta + \mathcal{R} u \cdot e_z = 0
+	\end{dcases} .
+	\]
+	We define the critical Rayleigh number $\mathcal{R}_c$ as the smallest $\mathcal{R} > 0$ such that the equation $Lw = 0$ has a non-trivial solution. Below this number all eigenvalues are negative, and we want to study the system in a neighborhood of $\mathcal{R}_c$.
+	\begin{remark}
+		The projection operator we will use is the one associated to the $Y$ inner product, since in our case it is the same as the one defined in \ref{projection}. This is the main advantage of $Y$ being endowed with a Hilbert structure.
+	\end{remark}
+	\subsection{LCM of an extended system}
+	Since it is not physical to ask what happens precisely at the critical value (arbitrary small perturbations will change the dynamics), we must extend our tools to work in a neighborhood of it. We write the following equivalent system, where $\mu = \mathcal{R} - \mathcal{R}_c$ is promoted to a variable:
+	\[
+	\begin{dcases*}
+		\frac{d}{dt} u + (u \cdot \nabla) u = \mathcal{P} (\theta e_z + \Delta u) \\
+		\frac{d}{dt} \theta + u \cdot \nabla \theta = \Delta \theta + (\mathcal{R}_c + \mu) u \cdot e_z \\
+		\frac{d}{dt} \mu = 0
+	\end{dcases*} .
+	\]
+	Now, we recover the linear and the non-linear part as
+	\[
+	x
+	=
+	\begin{pmatrix}
+		u \\
+		\theta \\
+		\mu
+	\end{pmatrix}
+	\qquad
+	\frac{d}{dt}
+	x
+	=
+	\widetilde{L}
+	x
+	+
+	\widetilde{R}
+	x ,
+	\]
+	where
+	\[
+	\widetilde{L}
+	x
+	=
+	\begin{pmatrix}
+		\mathcal{P} (\theta e_z + \Delta u) \\
+		\Delta \theta + \mathcal{R}_c u \cdot e_z \\
+		0
+	\end{pmatrix}
+	\qquad
+	\widetilde{R}
+	x
+	=
+	\begin{pmatrix}
+		- (u \cdot \nabla) u \\
+		- u \cdot \nabla \theta + \mu u \cdot e_z \\
+		0
+	\end{pmatrix}
+	.
+	\]
+	First, the center space of $\widetilde{L}$ is identical to the one of $L$ at the critical value, only enriched with the span of a new vector $\mu_0 = 1$. It is trivial to verify that all the hypothesis of LCM theorem are satisfied by this extended system, but now the LCM can be Taylor-expanded also in $\mu$.
+	\subsection{Taylor expansion of LCM}
+	We want to approximate the dynamics on the LCM, so we develop a method to Taylor-expand its parametrization. The dynamics is captured by the equation
+	\[
+	\begin{split}
+		\frac{d}{dt} (x_0 + \Psi(x_0)) &= \frac{d}{dt} x_0 + D\Psi(x_0) \frac{d}{dt} x_0 \\
+		&= \widetilde{L}x_0 + \widetilde{L}\Psi(x_0) + \widetilde{R}(x_0 + \Psi(x_0)) ,
+	\end{split}
+	\]
+	that once projected with $\widetilde{P}$ and $I - \widetilde{P}$ becomes
+	\[
+	\begin{dcases}
+		\frac{d}{dt} x_0 = \widetilde{L}x_0 + \widetilde{P} \widetilde{R}(x_0 + \Psi(x_0)) \\
+		D\Psi(x_0) \frac{d}{dt} x_0 = \widetilde{L}\Psi(x_0) + (I - \widetilde{P}) \widetilde{R}(x_0 + \Psi(x_0))
+	\end{dcases} .
+	\]
+	By substituting $\frac{d}{dt} x_0$ from the first to the second, we get
+	\[
+	D\Psi(x_0) (\widetilde{L}x_0 + \widetilde{P} \widetilde{R}(x_0 + \Psi(x_0))) = \widetilde{L}\Psi(x_0) + (I - \widetilde{P}) \widetilde{R}(x_0 + \Psi(x_0)) .
+	\]
+	We could calculate $D^2 \Psi(0)$ by Fréchet-deriving this identity. Numerically, we will see that the original center space is 1-dimensional, spanned by a normalized
+	\[
+	\phi =
+	\begin{pmatrix}
+		u_0 \\
+		\theta_0
+	\end{pmatrix} ,
+	\]
+	so the extended one is 2-dimensional, spanned by $\phi$ and $1$. It is thus sufficient to compute
+	\[
+	\Psi^{(2)}_{1 1} = D^2 \Psi(0) (\phi, \phi)
+	\]
+	\[
+	\Psi^{(2)}_{1 2} = D^2 \Psi(0) (\phi, 1)
+	\]
+	\[
+	\Psi^{(2)}_{2 2} = D^2 \Psi(0) (1, 1) .
+	\]
+	First, it is easy to check that
+	\[
+	D^2 \widetilde{R}_0(x_1, x_2) =
+	\begin{pmatrix}
+		- (u_1 \cdot \nabla) u_2 - (u_2 \cdot \nabla) u_1 \\
+		- u_1 \cdot \nabla \theta_2 - u_2 \cdot \nabla \theta_1 + \mu_1 u_2 \cdot e_z + \mu_2 u_1 \cdot e_z \\
+		0
+	\end{pmatrix} ,
+	\]
+	and that
+	\[
+	\widetilde{P} D^2 \widetilde{R}_0 (\phi, \phi) = 0
+	\]
+	\[
+	D^2 \widetilde{R}_0 (\phi, 1) =
+	\begin{pmatrix}
+		0 \\
+		u_0 \cdot e_z \\
+		0
+	\end{pmatrix}
+	\]
+	\[
+	D^2 \widetilde{R}_0 (1, 1) = 0 .
+	\]
+	By taking derivatives, we arrive at the equations
+	\[
+	\widetilde{L} \Psi^{(2)}_{1 1} = - D^2 \widetilde{R}_0(\phi, \phi)
+	\]
+	\[
+	\widetilde{L} \Psi^{(2)}_{1 2} =
+	(\widetilde{P} - I) 
+	\begin{pmatrix}
+		0 \\
+		u_0 \cdot e_z \\
+		0
+	\end{pmatrix}
+	\]
+	\[
+	\widetilde{L} \Psi^{(2)}_{2 2} = 0 .
+	\]
+	Since $\Psi^{(2)}_{2 2}$ is orthogonal to the center space, is must be 0. If we solved for $\Psi^{(2)}_{1 1}$, $\Psi^{(2)}_{1 2}$, we could Taylor-expand the ODE at the third order as
+	\[
+	\frac{d}{dt} \lambda \phi = \frac{d}{dt} (\lambda \phi + \mu 1) = \left(\widetilde{P} D^2 \widetilde{R}_0 (\phi, 1)\right) \lambda \mu + \frac{1}{3!} \left(3 \widetilde{P} D^2 \widetilde{R}_0 (\Psi^{(2)}_{1 1}(\phi, \phi), \phi)\right) \lambda^3 .
+	\]
+	We ignore the terms with $\lambda^2$, since we expect them to be 0 from the symmetry of the numerical computation of $\phi$ (see Section \ref{FEM-results}). By taking the inner product with $\phi$, we get an ODE for $\lambda$:
+	\begin{equation}
+		\label{truncated-ODE}
+		\frac{d}{dt} \lambda = a \mu \lambda + b \lambda^3 ,
+	\end{equation}
+	where
+	\[
+	a = \left(D^2 \widetilde{R}_0 (\phi, 1), \phi\right) \qquad b = \frac{1}{2} \left(D^2 \widetilde{R}_0 (\Psi^{(2)}_{1 1}, \phi), \phi\right) .
+	\]
+	The complete approximate solution will be
+	\begin{equation}
+		\label{complete solution}
+		\widetilde{w} = \lambda \left(\phi + \mu \Psi^{(2)}_{1 2}\right) + \frac{1}{2} \lambda^2 \Psi^{(2)}_{1 1} .
+	\end{equation}
+	\subsection{Stable equilibrium}
+	Fixing $\mathcal{P} = 1$, from the numerical analysis we find that
+	\[
+	a > 0 \qquad b < 0 ,
+	\]
+	so for $\mu > 0$ we have a stable equilibrium at
+	\[
+	\lambda_0 = \pm \sqrt{- \frac{a}{b} \mu} = \pm c \sqrt{\mu} ,
+	\]
+	and the trivial equilibrium $\lambda = 0$ is unstable. For $\mu \leq 0$ the only (stable) equilibrium is the trivial one, so for a Reyleigh number below its critical value every perturbation disappear, while for a Reyleigh number above its critical value the system tends to a steady but non-trivial state.
+	\section{FEM results}
+	\label{FEM-results}
+	With FEM numerical computation, we find the approximate values of the critical Rayleigh number $\mathcal{R}_c$, the parameters $a$, $b$, $c$ and the approximate functions $\phi$, $\Psi_{1 2}^{(2)}$, $\Psi_{1 1}^{(2)}$.
+	\begin{remark}
+		We used a divergence-free FEM space for velocity, constructed as the curl of a $C^1$ FEM space, so pressure was not part of the computation. \st{This tiny feature gave me a lot of trouble.}
+	\end{remark}
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c | c c c c}
+			\toprule
+			\textbf{Mesh size} & $\mathcal{R}_c$ & $a ~ (\times 10^{-3})$ & $b ~ (\times 10^{-2})$ & $c ~ (\times 10^{-1})$ \\
+			\midrule
+			0.141421 & 2576.93 & 5.89809 & -6.49980 & 3.01235 \\
+			0.070711 & 2576.92 & 5.81481 & -6.66100 & 2.96597 \\
+			0.047140 & 2580.54 & 5.78717 & -6.60178 & 2.96076 \\
+			0.035355 & 2582.26 & 5.77620 & -6.59632 & 2.95917 \\
+			0.028284 & 2583.17 & 5.77083 & -6.59332 & 2.95847 \\
+			0.023570 & 2583.69 & 5.76783 & -6.59157 & 2.95809 \\
+			0.020203 & 2584.02 & 5.76598 & -6.59047 & 2.95787 \\
+			0.017678 &  2584.24  & 5.76477 & -6.58974 & 2.95772 \\
+			0.015713 & 2584.40 & 5.76393 & -6.58924 & 2.95761 \\
+			0.014142 & 2584.51 & 5.76332 & -6.58887 & 2.95754 \\
+			\bottomrule
+		\end{tabular}
+		\caption{Convergence table.}
+	\end{table}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width = .3\textwidth]{figures/phi-temperature.png}
+		\hspace{0.1cm}
+		\includegraphics[width = .3\textwidth]{figures/psi-11-temperature.png}
+		\hspace{0.1cm}
+		\includegraphics[width = .3\textwidth]{figures/psi-12-temperature.png}
+		\caption{Temperature heatmaps of $\phi$, $\Psi^{(2)}_{1 1}$, $\Psi^{(2)}_{1 2}$.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width = .5\textwidth]{figures/equilibrium-temperature.png}
+		\caption{Temperature heatmap of stable equilibrium solution with $\mu = 100$.}
+	\end{figure}
+	It is worth to note that the signs of the terms associated with odd term can be inverted, while the sign of $\Psi^{(2)}_{1 1}$ is fixed and is associated to the vertical asymmetry of the problem. The same pattern appears in the velocity fields, where $\phi$, $\Psi^{(2)}_{1 1}$, $\Psi^{(2)}_{1 2}$ represent respectively a roll, 4 rolls and a roll again. A single roll can be reversed, while the orientation of the 4 rolls is fixed.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width = .3\textwidth]{figures/phi-velocity.png}
+		\hspace{0.1cm}
+		\includegraphics[width = .3\textwidth]{figures/psi-11-velocity.png}
+		\hspace{0.1cm}
+		\includegraphics[width = .3\textwidth]{figures/psi-12-velocity.png}
+		\caption{Velocity fields of $\phi$, $\Psi^{(2)}_{1 1}$, $\Psi^{(2)}_{1 2}$.}
+	\end{figure}
+	\section{Conclusions}
+	The FEM computation confirmed the qualitative physical behaviour we expected from this system. The plotted patterns appear to be those of convection, hence our analysis can be considered at least a good starting point for further studies.
+	\printbibliography
+\end{document}

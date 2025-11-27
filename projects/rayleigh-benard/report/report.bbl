@@ -1,0 +1,56 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.1 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{haragus}{book}{}
+      \name{author}{2}{}{%
+        {{hash=f7033545ff04338fcfd4020ddd32dbae}{%
+           family={Haragus},
+           familyi={H\bibinitperiod},
+           given={Mariana},
+           giveni={M\bibinitperiod}}}%
+        {{hash=21520dd87d25f3dcfdaad7b646c9caf8}{%
+           family={Iooss},
+           familyi={I\bibinitperiod},
+           given={Gérard},
+           giveni={G\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{cdc63d300ac69a6b5cb87d3751bb156d}
+      \strng{fullhash}{cdc63d300ac69a6b5cb87d3751bb156d}
+      \strng{bibnamehash}{cdc63d300ac69a6b5cb87d3751bb156d}
+      \strng{authorbibnamehash}{cdc63d300ac69a6b5cb87d3751bb156d}
+      \strng{authornamehash}{cdc63d300ac69a6b5cb87d3751bb156d}
+      \strng{authorfullhash}{cdc63d300ac69a6b5cb87d3751bb156d}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{series}{Universitex}
+      \field{title}{Local Bifurcations, Center Manifolds, and Normal Forms in Infinite-Dimensional Dynamical Systems}
+      \field{year}{2011}
+      \field{dateera}{ce}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
