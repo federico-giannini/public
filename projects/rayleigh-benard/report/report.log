@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.5.17)  13 OCT 2025 03:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.5.17)  28 NOV 2025 01:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1229,11 +1229,11 @@ Package logreq Info: Writing requests to 'report.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 29692 strings out of 478994
- 547049 string characters out of 5858184
+ 29691 strings out of 478994
+ 547032 string characters out of 5858184
  1246228 words of memory out of 5000000
- 46646 multiletter control sequences out of 15000+600000
- 436912 words of font info for 120 fonts, out of 8000000 for 9000
+ 46645 multiletter control sequences out of 15000+600000
+ 436503 words of font info for 119 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  87i,16n,89p,739b,1235s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
@@ -1247,7 +1247,7 @@ xmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/local/texlive/2021/texmf-
 dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2021/texmf-dist/fo
 nts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/typ
 e1/urw/palatino/uplri8a.pfb>
-Output written on report.pdf (8 pages, 1011798 bytes).
+Output written on report.pdf (8 pages, 1011550 bytes).
 PDF statistics:
  172 PDF objects out of 1000 (max. 8388607)
  143 compressed objects within 2 object streams
